@@ -7,7 +7,9 @@ import ListPage from "./pages/student/ListPage.jsx";
 import CreatePage from "./pages/student/CreatePage.jsx";
 import EditPage from "./pages/student/EditPage.jsx";
 import HomePage from './pages/student/HomePage.jsx';
-import LoginPage from './pages/student/LoginPage.jsx';
+
+import RegisterPage from './pages/auth/RegisterPage.jsx';
+import LoginPage from './pages/auth/LoginPage.jsx';
 
 function App() {
 
@@ -21,6 +23,7 @@ function App() {
         <Route path='/create-student' element={<CreatePage />} />
         <Route path='/edit-student/:id' element={<EditPage />} />
         <Route path='/login' element={<LoginPage />} />
+        <Route path='/register' element={<RegisterPage />} />
       </Routes>
     </div>
   )

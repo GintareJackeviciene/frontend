@@ -1,53 +1,50 @@
 import useApiData from "../../hooks/useApiData.jsx";
-import { baseApiUrl } from "../../helper.js";
-import {useNavigate} from "react-router-dom";
+import {baseApiUrl} from "../../helper.js";
+import {Link, useNavigate} from "react-router-dom"
 import axios from "axios";
-
-const itemsUrl = 'http://localhost:3000/api/students';
+import toast from "react-hot-toast";
+import {useAuthContext} from "../../store/AuthCtxProvider.jsx";
 
 export default function ListPage() {
-
-   
     const [studentList, setStudentList] = useApiData(`${baseApiUrl}students`);
+
+    const {isUserAdmin, isUserLoggedIn, token} = useAuthContext();
 
     const navigate = useNavigate();
 
-
-    function handleDelete (idToDelete) {
-        console.log('deleting post ===', idToDelete);
-        //siusti uxklausa istrynimui
-        //http://localhost:3000/api/students/5
-        const delUrl =`${itemsUrl}/${idToDelete}`
+    const deleteStudent = async (studentId) => {
         axios
-        .delete(delUrl)
-        .then(ats => {
-         console.log('ats  ===', ats ); 
-         //atnaujiname sarasa
-         const updatedList = studentList.filter((item) => item.id !== idToDelete);
-         setStudentList(updatedList);
-        })
-        .catch(error => {
-           console.warn('ivyko klaida', error)
-        })
-    }
+            .delete(`${baseApiUrl}students/${studentId}`, {
+                headers: {'Authorization': token}
+            })
+            .then((response) => {
+                navigate('/list-student');
+                toast.success(`Studentas ID: ${studentId} sėkmingai ištrintas!`);
 
+                const list = studentList.filter(student => student.id !== studentId); //only remove the selected row
+                setStudentList(list);
+            })
+            .catch((error) => {
+                toast.error(error.response.data.error);
+            })
+    }
 
     return (
         <div className='container mx-auto p-4'>
-        <h1 className='text-4xl'>Studentų sąrašas</h1>
-    
-        <div className='mt-5'>
-            <table className="min-w-full table-auto">
-                <thead className="bg-gray-600 text-white">
+            <h1 className='text-4xl'>Studentų sąrašas</h1>
+
+            <div className='mt-5'>
+                <table className="min-w-full table-auto">
+                    <thead className="bg-gray-600 text-white">
                     <tr>
                         <th className="px-4 py-2">ID</th>
                         <th className="px-4 py-2">Vardas</th>
                         <th className="px-4 py-2">Pavardė</th>
                         <th className="px-4 py-2">El. paštas</th>
-                        <th className="px-4 py-2">Veiksmai</th>
+                        <th className="px-4 py-2"></th>
                     </tr>
-                </thead>
-                <tbody>
+                    </thead>
+                    <tbody>
                     {studentList.map((studentas) => (
                         <tr key={studentas.id} className="bg-gray-200">
                             <td className="border px-4 py-2">{studentas.id}</td>
@@ -55,26 +52,31 @@ export default function ListPage() {
                             <td className="border px-4 py-2">{studentas.lastname}</td>
                             <td className="border px-4 py-2">{studentas.email}</td>
                             <td className="border px-4 py-2">
-                                <button
-                                onClick={() => navigate (`/edit-student/${studentas.id}`)}
-                                    className="bg-blue-500 hover:bg-blue-700 text-white 
-                                    font-bold py-1 px-3 rounded mr-2 transition-all duration-300"
-                                >
-                                    Atnaujinti
-                                </button>
-                                <button
-                                onClick={() => handleDelete(studentas.id)}
-                                    className="bg-red-500 hover:bg-red-700 text-white 
-                                    font-bold py-1 px-3 rounded transition-all duration-300"
-                                >
-                                    Ištrinti
-                                </button>
+                                { isUserLoggedIn && (
+                                    <>
+                                        <Link
+                                            to={`/edit-student/${studentas.id}`}
+                                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                        >
+                                            Redaguoti
+                                        </Link>
+
+                                        { isUserAdmin && (
+                                            <button
+                                                className="bg-red-500 hover:bg-red-400 text-white font-bold ml-2 py-2 px-4 rounded"
+                                                onClick={() => deleteStudent(studentas.id)}
+                                            >
+                                                Ištrinti
+                                            </button>
+                                        )}
+                                    </>
+                                )}
                             </td>
                         </tr>
                     ))}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-    )
+    );
 }
