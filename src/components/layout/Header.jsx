@@ -1,9 +1,9 @@
-import {NavLink, useNavigate} from "react-router-dom";
-import {useAuthContext} from "../../store/AuthCtxProvider.jsx";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuthContext } from "../../store/AuthCtxProvider.jsx";
 import toast from "react-hot-toast";
 
 export default function Header() {
-    const {isUserLoggedIn, logout} = useAuthContext();
+    const { isUserLoggedIn, isUserAdmin, logout } = useAuthContext();
 
     const navigate = useNavigate();
 
@@ -23,9 +23,9 @@ export default function Header() {
                 {!isUserLoggedIn && (
                     <>
                         <NavLink className='px-4 py-3 hover:bg-stone-500 hover:text-white'
-                                 to={'/login'}>Prisijungti</NavLink>
+                            to={'/login'}>Prisijungti</NavLink>
                         <NavLink className='px-4 py-3 hover:bg-stone-500 hover:text-white'
-                                 to={'/register'}>Registracija</NavLink>
+                            to={'/register'}>Registracija</NavLink>
                     </>
                 )}
 
@@ -34,6 +34,18 @@ export default function Header() {
                         <NavLink className='px-4 py-3 hover:bg-stone-500 hover:text-white' to={'/create-student'}>
                             Sukurti studentą
                         </NavLink>
+                        {isUserAdmin && (
+                            <>
+                                <NavLink className='px-4 py-3 hover:bg-stone-500 hover:text-white' to={'/create-user'}>
+                                    Sukurti vartotoją
+                                </NavLink>
+                                <NavLink className='px-4 py-3 hover:bg-stone-500 hover:text-white' to={'/list-user'}>
+                                    Vartotojai
+                                </NavLink>
+                            </>
+
+                        )}
+
                         <button
                             className="px-4 py-3 hover:bg-stone-500 hover:text-white"
                             onClick={handleLogout}
